@@ -1,10 +1,20 @@
 import requests
 
+from . import _chrome
 
-def get_json_data(payload: dict) -> list[dict]:
+
+def get_json_data(payload: dict, referer: str | None = None) -> list[dict]:
+    if referer is None:
+        referer = 'http://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201'
+
+    headers = {
+        'user-agent': _chrome.user_agent(),
+        'referer': referer
+    }
+
     url = 'http://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd'
 
-    r = requests.post(url=url, data=payload)
+    r = requests.post(url=url, data=payload, headers=headers)
     json = r.json()
 
     keys = list(json)
