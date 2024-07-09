@@ -27,10 +27,14 @@ def get_json_data(payload: dict, referer: str | None = None) -> list[dict]:
 
 
 def download_csv(payload: dict) -> str:
+    headers = {
+        'user-agent': _chrome.user_agent()
+    }
+
     # 1. Generate OTP
     otp_url = 'http://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
 
-    r = requests.post(url=otp_url, data=payload)
+    r = requests.post(url=otp_url, data=payload, headers=headers)
     otp = {
         'code': r.text
     }
@@ -38,7 +42,7 @@ def download_csv(payload: dict) -> str:
     # 2. Download CSV
     url = 'http://data.krx.co.kr/comm/fileDn/download_csv/download.cmd'
 
-    r = requests.post(url=url, data=otp)
+    r = requests.post(url=url, data=otp, headers=headers)
     csv = r.content.decode(encoding='euc_kr')
 
     return csv
