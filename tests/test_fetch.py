@@ -23,8 +23,8 @@ def payload():
 def test_get_json_data(payload):
     data = get_json_data(payload)
 
-    assert data[0]['IDX_NM'] == 'KRX 300'
-    assert data[0]['CLSPRC_IDX'] == '1,573.77'
+    assert data[1]['IDX_NM'] == 'KRX 300'
+    assert data[1]['CLSPRC_IDX'] == '1,573.77'
 
 
 @pytest.mark.skipif(False, reason='requires http request')
@@ -36,7 +36,7 @@ def test_download_csv(payload):
     csv = download_csv(payload)
 
     lines = csv.splitlines()
-    first = lines[1].split(',')
+    first = lines[2].split(',')
 
     assert first[0] == '"KRX 300"'
     assert first[1] == '"1573.77"'
