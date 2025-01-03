@@ -23,15 +23,20 @@ def test_holiday_from_file():
     assert info[17] == '2024-12-31'
 
     info = holiday_from_file(2025)
+    assert len(info) == 17
+    assert info[0] == '2025-01-01'
+    assert info[16] == '2025-12-31'
+
+    info = holiday_from_file(2026)
     assert len(info) == 0
 
 
 @pytest.mark.skipif(False, reason='requires http request')
 def test_holiday_from_krx():
-    info = holiday_from_krx(2024)
-    assert len(info) == 18
-    assert info[0] == '2024-01-01'
-    assert info[17] == '2024-12-31'
+    info = holiday_from_krx(2025)
+    assert len(info) == 17
+    assert info[0] == '2025-01-01'
+    assert info[16] == '2025-12-31'
 
 
 @pytest.mark.skipif(False, reason='requires http request')
