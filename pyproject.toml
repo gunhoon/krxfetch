@@ -1,6 +1,6 @@
 [project]
 name = "krxfetch"
-version = "2024.3"
+version = "2025.1"
 description = "KRXFetch is a core library for scraping financial data from the KRX(Korea Exchange) Market Data System."
 readme = "README.md"
 requires-python = ">=3.8"
