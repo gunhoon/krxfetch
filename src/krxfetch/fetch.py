@@ -7,31 +7,29 @@ class Fetch:
     def __init__(self):
         self.session = requests.Session()
         self.referer = 'https://data.krx.co.kr/contents/MDC/MDI/outerLoader/index.cmd?menuId=MDC0201'
-
-    def get_json_data(self, payload: dict) -> list[dict]:
-        headers = {
+        self.headers = {
             'user-agent': _chrome.user_agent(),
             'referer': self.referer
         }
 
+    def get_json_data(self, payload: dict) -> list[dict]:
+        headers = self.headers
+
         url = 'https://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd'
 
         r = self.session.post(url=url, headers=headers, data=payload)
-        json = r.json()
+        json_data = r.json()
 
-        keys = list(json)
+        keys = list(json_data)
         k = keys[1] if keys[0] == 'CURRENT_DATETIME' else keys[0]
 
         if k != 'output' and k != 'OutBlock_1' and k != 'block1':
             raise NotImplementedError(k)
 
-        return json[k]
+        return json_data[k]
 
     def download_csv(self, payload: dict) -> str:
-        headers = {
-            'user-agent': _chrome.user_agent(),
-            'referer': self.referer
-        }
+        headers = self.headers
 
         # 1. Generate OTP
         otp_url = 'https://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
