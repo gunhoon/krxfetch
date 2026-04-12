@@ -3,50 +3,50 @@ import requests
 from . import _chrome
 
 
-def get_json_data(payload: dict, referer: str | None = None) -> list[dict]:
-    if referer is None:
-        referer = 'https://data.krx.co.kr/contents/MDC/MDI/outerLoader/index.cmd?menuId=MDC0201'
+class Fetch:
+    def __init__(self, referer: str | None = None) -> None:
+        self.session = requests.Session()
+        self.referer = referer
+        if self.referer is None:
+            self.referer = 'https://data.krx.co.kr/contents/MDC/MDI/outerLoader/index.cmd?menuId=MDC0201'
 
-    headers = {
-        'user-agent': _chrome.user_agent(),
-        'referer': referer
-    }
+    def _headers(self) -> dict:
+        return {
+            'user-agent': _chrome.user_agent(),
+            'referer': self.referer
+        }
 
-    url = 'https://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd'
+    def get_json_data(self, payload: dict) -> list[dict]:
+        headers = self._headers()
 
-    r = requests.post(url=url, data=payload, headers=headers)
-    json = r.json()
+        url = 'https://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd'
 
-    keys = list(json)
-    k = keys[1] if keys[0] == 'CURRENT_DATETIME' else keys[0]
+        r = self.session.post(url=url, headers=headers, data=payload)
+        json_data = r.json()
 
-    if k != 'output' and k != 'OutBlock_1' and k != 'block1':
-        raise NotImplementedError(k)
+        keys = list(json_data)
+        k = keys[1] if keys[0] == 'CURRENT_DATETIME' else keys[0]
 
-    return json[k]
+        if k != 'output' and k != 'OutBlock_1' and k != 'block1':
+            raise NotImplementedError(k)
 
+        return json_data[k]
 
-def download_csv(payload: dict, referer: str | None = None) -> str:
-    if referer is None:
-        referer = 'https://data.krx.co.kr/contents/MDC/MDI/outerLoader/index.cmd?menuId=MDC0201'
+    def download_csv(self, payload: dict) -> str:
+        headers = self._headers()
 
-    headers = {
-        'user-agent': _chrome.user_agent(),
-        'referer': referer
-    }
+        # 1. Generate OTP
+        otp_url = 'https://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
 
-    # 1. Generate OTP
-    otp_url = 'https://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
+        r = self.session.post(url=otp_url, headers=headers, data=payload)
+        otp = {
+            'code': r.text
+        }
 
-    r = requests.post(url=otp_url, data=payload, headers=headers)
-    otp = {
-        'code': r.text
-    }
+        # 2. Download CSV
+        url = 'https://data.krx.co.kr/comm/fileDn/download_csv/download.cmd'
 
-    # 2. Download CSV
-    url = 'https://data.krx.co.kr/comm/fileDn/download_csv/download.cmd'
+        r = self.session.post(url=url, headers=headers, data=otp)
+        csv = r.content.decode(encoding='euc_kr')
 
-    r = requests.post(url=url, data=otp, headers=headers)
-    csv = r.content.decode(encoding='euc_kr')
-
-    return csv
+        return csv
