@@ -1,7 +1,14 @@
 import pytest
 
-from krxfetch.fetch import get_json_data
-from krxfetch.fetch import download_csv
+from krxfetch.fetch import Fetch
+
+
+@pytest.fixture
+def fetch():
+    fetch = Fetch()
+    fetch.login()
+
+    return fetch
 
 
 @pytest.fixture
@@ -20,8 +27,8 @@ def payload():
 
 
 @pytest.mark.skipif(False, reason='requires http request')
-def test_get_json_data(payload):
-    data = get_json_data(payload)
+def test_get_json_data(fetch, payload):
+    data = fetch.get_json_data(payload)
 
     assert data[0]['IDX_NM'] == '코리아 밸류업 지수'
     assert data[0]['CLSPRC_IDX'] == '1,265.58'
@@ -39,12 +46,12 @@ def test_get_json_data(payload):
 
 
 @pytest.mark.skipif(False, reason='requires http request')
-def test_download_csv(payload):
+def test_download_csv(fetch, payload):
     bld = payload.pop('bld')
     payload['name'] = 'fileDown'
     payload['url'] = bld
 
-    csv = download_csv(payload)
+    csv = fetch.download_csv(payload)
 
     lines = csv.splitlines()
 
