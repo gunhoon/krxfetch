@@ -6,14 +6,18 @@ from . import _chrome
 class Fetch:
     def __init__(self):
         self.session = requests.Session()
-        self.referer = 'https://data.krx.co.kr/contents/MDC/MDI/outerLoader/index.cmd?menuId=MDC0201'
-        self.headers = {
-            'user-agent': _chrome.user_agent(),
-            'referer': self.referer
+        self.referer = 'https://data.krx.co.kr/contents/MDC/MDI/mdiLoader/index.cmd?menuId=MDC0201'
+        self.session.headers.update({
+            'User-Agent': _chrome.user_agent()
+        })
+
+    def _headers(self, referer: str | None = None) -> dict:
+        return {
+            'Referer': referer or self.referer
         }
 
     def get_json_data(self, payload: dict) -> list[dict]:
-        headers = self.headers
+        headers = self._headers()
 
         url = 'https://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd'
 
@@ -29,7 +33,7 @@ class Fetch:
         return json_data[k]
 
     def download_csv(self, payload: dict) -> str:
-        headers = self.headers
+        headers = self._headers()
 
         # 1. Generate OTP
         otp_url = 'https://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd'
